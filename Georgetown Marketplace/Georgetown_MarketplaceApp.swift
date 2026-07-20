@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct Georgetown_MarketplaceApp: App {
+    @StateObject private var store = MarketplaceStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(store)
         }
     }
 }
