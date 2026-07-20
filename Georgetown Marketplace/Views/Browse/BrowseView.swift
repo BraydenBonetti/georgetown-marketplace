@@ -17,7 +17,6 @@ struct BrowseView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    // FB-style search (in-feed, not nav searchable)
                     MarketplaceSearchField(
                         text: $store.searchText,
                         placeholder: "Search Marketplace"
@@ -25,7 +24,6 @@ struct BrowseView: View {
                     .padding(.horizontal, 12)
                     .padding(.top, 4)
 
-                    // Sell / filters row
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             if store.isSeller {
@@ -33,19 +31,37 @@ struct BrowseView: View {
                                     store.selectedTab = .sell
                                 }
                             }
-                            FilterPill(title: "Free", systemImage: "gift") {
-                                withAnimation {
-                                    store.searchText = "Free"
+                            FilterPill(
+                                title: "Free",
+                                systemImage: "gift",
+                                isSelected: store.showFreeOnly
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    store.showFreeOnly.toggle()
+                                    if store.showFreeOnly { store.searchText = "" }
+                                }
+                            }
+                            FilterPill(
+                                title: "Borrow",
+                                systemImage: "clock.arrow.circlepath",
+                                isSelected: store.showBorrowableOnly
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    store.showBorrowableOnly.toggle()
                                 }
                             }
                             FilterPill(title: "Saved", systemImage: "bookmark") {
                                 store.selectedTab = .saved
                             }
+                            if store.activeFilterCount > 0 {
+                                FilterPill(title: "Clear", systemImage: "xmark") {
+                                    withAnimation { store.clearBrowseFilters() }
+                                }
+                            }
                         }
                         .padding(.horizontal, 12)
                     }
 
-                    // Category circles (FB Marketplace signature)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(alignment: .top, spacing: 4) {
                             ForEach(ListingCategory.allCases) { category in
@@ -62,15 +78,41 @@ struct BrowseView: View {
                         .padding(.horizontal, 10)
                     }
 
-                    // Today's picks
-                    HStack(alignment: .firstTextBaseline) {
-                        Text("Today's picks")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(AppTheme.hoyaNavy)
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Today's picks")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundStyle(AppTheme.hoyaNavy)
+                            Text("\(store.filteredListings.count) listing\(store.filteredListings.count == 1 ? "" : "s")")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(AppTheme.hoyaGray)
+                        }
                         Spacer()
-                        Text("Local pickup")
+                        Menu {
+                            ForEach(MarketplaceStore.BrowseSort.allCases) { mode in
+                                Button {
+                                    store.sortMode = mode
+                                } label: {
+                                    HStack {
+                                        Text(mode.rawValue)
+                                        if store.sortMode == mode {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.up.arrow.down")
+                                Text(store.sortMode.rawValue)
+                            }
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(AppTheme.hoyaGray)
+                            .foregroundStyle(AppTheme.hoyaNavy)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(Color.white)
+                            .clipShape(Capsule())
+                        }
                     }
                     .padding(.horizontal, 14)
                     .padding(.top, 4)
@@ -82,7 +124,9 @@ struct BrowseView: View {
                                     listing: listing,
                                     isSaved: store.isSaved(listing)
                                 ) {
-                                    store.toggleSave(listing)
+                                    withAnimation(.spring(response: 0.28, dampingFraction: 0.7)) {
+                                        store.toggleSave(listing)
+                                    }
                                 }
                             }
                             .buttonStyle(.plain)
@@ -92,19 +136,29 @@ struct BrowseView: View {
                     .padding(.bottom, 28)
 
                     if store.filteredListings.isEmpty {
-                        VStack(spacing: 10) {
-                            Image(systemName: "bag")
+                        VStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
                                 .font(.system(size: 36))
                                 .foregroundStyle(AppTheme.hoyaGrayLight)
                             Text("No listings found")
                                 .font(.headline)
                                 .foregroundStyle(AppTheme.hoyaNavy)
-                            Text("Try another category or search.")
+                            Text("Try another category, clear filters, or check back later.")
                                 .font(.subheadline)
                                 .foregroundStyle(AppTheme.hoyaGray)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 28)
+                            if store.activeFilterCount > 0 {
+                                Button("Clear filters") {
+                                    store.clearBrowseFilters()
+                                }
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(AppTheme.hoyaNavy)
+                            }
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 40)
+                        .padding(.bottom, 40)
                     }
                 }
             }
@@ -117,10 +171,14 @@ struct BrowseView: View {
                     Button {
                         store.selectedTab = .you
                     } label: {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 26))
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(.white, AppTheme.hoyaBlue)
+                        if let user = store.currentUser {
+                            AvatarView(user: user, size: 28)
+                                .overlay(Circle().stroke(Color.white.opacity(0.8), lineWidth: 1.5))
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .font(.system(size: 26))
+                                .foregroundStyle(.white)
+                        }
                     }
                 }
             }

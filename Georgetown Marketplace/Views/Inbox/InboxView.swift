@@ -12,18 +12,31 @@ struct InboxView: View {
         NavigationStack {
             Group {
                 if store.sortedConversations.isEmpty {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 14) {
                         Image(systemName: "bubble.left.and.bubble.right.fill")
                             .font(.system(size: 40))
                             .foregroundStyle(AppTheme.hoyaNavy.opacity(0.35))
                         Text("No messages yet")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(AppTheme.hoyaNavy)
-                        Text("Message a seller from any listing or profile.")
+                        Text("Tap Message on any listing to start a chat with the seller.")
                             .font(.subheadline)
                             .foregroundStyle(AppTheme.hoyaGray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
+                        Button {
+                            store.selectedTab = .browse
+                        } label: {
+                            Text("Browse listings")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 11)
+                                .background(AppTheme.hoyaNavy)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.top, 4)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(AppTheme.surface)

@@ -1,0 +1,14 @@
+---
+description: Always commit and push changes to GitHub for this project
+alwaysApply: true
+---
+
+# Auto-push for Georgetown Marketplace
+
+After finishing a coherent set of code changes in this project:
+
+1. Stage relevant files (`git add`)
+2. Create a concise commit with a HEREDOC message focused on why
+3. Push to `origin` (`git push`)
+
+Do this automatically without waiting for the user to ask. Never force-push, never amend unless the user explicitly asks, and never update git config.

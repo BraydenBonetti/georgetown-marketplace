@@ -19,10 +19,21 @@ final class MarketplaceStore: ObservableObject {
     @Published var selectedCategory: ListingCategory = .all
     @Published var searchText: String = ""
     @Published var selectedTab: MarketplaceTab = .browse
+    @Published var showFreeOnly: Bool = false
+    @Published var showBorrowableOnly: Bool = false
+    @Published var sortMode: BrowseSort = .newest
 
     @Published var isAuthenticated: Bool = false
     @Published var authError: String?
     @Published var needsProfileSetup: Bool = false
+
+    enum BrowseSort: String, CaseIterable, Identifiable {
+        case newest = "Newest"
+        case priceLow = "Price ↑"
+        case priceHigh = "Price ↓"
+
+        var id: String { rawValue }
+    }
 
     private enum StorageKey {
         static let email = "gm.currentUserEmail"
@@ -254,7 +265,7 @@ final class MarketplaceStore: ObservableObject {
     // MARK: - Listings
 
     var filteredListings: [Listing] {
-        listings
+        var result = listings
             .filter { $0.status == .active }
             .filter { selectedCategory == .all || $0.category == selectedCategory }
             .filter {
@@ -263,7 +274,40 @@ final class MarketplaceStore: ObservableObject {
                     || $0.description.localizedCaseInsensitiveContains(searchText)
                     || $0.location.rawValue.localizedCaseInsensitiveContains(searchText)
             }
-            .sorted { $0.createdAt > $1.createdAt }
+
+        if showFreeOnly {
+            result = result.filter { $0.price == 0 }
+        }
+        if showBorrowableOnly {
+            result = result.filter { $0.allowsLoan }
+        }
+
+        switch sortMode {
+        case .newest:
+            return result.sorted { $0.createdAt > $1.createdAt }
+        case .priceLow:
+            return result.sorted { $0.price < $1.price }
+        case .priceHigh:
+            return result.sorted { $0.price > $1.price }
+        }
+    }
+
+    func clearBrowseFilters() {
+        searchText = ""
+        selectedCategory = .all
+        showFreeOnly = false
+        showBorrowableOnly = false
+        sortMode = .newest
+    }
+
+    var activeFilterCount: Int {
+        var count = 0
+        if showFreeOnly { count += 1 }
+        if showBorrowableOnly { count += 1 }
+        if selectedCategory != .all { count += 1 }
+        if !searchText.isEmpty { count += 1 }
+        if sortMode != .newest { count += 1 }
+        return count
     }
 
     var savedListings: [Listing] {

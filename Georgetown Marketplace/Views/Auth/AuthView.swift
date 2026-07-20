@@ -75,7 +75,7 @@ private struct WelcomeView: View {
                     .font(.system(size: 40, weight: .bold, design: .serif))
                     .foregroundStyle(.white)
 
-                Text("Buy it, bid on it, or borrow it — furniture, textbooks, tickets, and more.")
+                Text("Buy it, bid on it, or borrow it — a cleaner Marketplace with real chat and profiles.")
                     .font(.system(size: 16))
                     .foregroundStyle(.white.opacity(0.72))
                     .fixedSize(horizontal: false, vertical: true)
