@@ -7,9 +7,11 @@ import SwiftUI
 
 struct AuthView: View {
     @EnvironmentObject private var store: MarketplaceStore
-    @State private var route: Route = .welcome
+    @ObservedObject private var theme = ThemeCenter.shared
+    @State private var route: Route = .college
 
     enum Route {
+        case college
         case welcome
         case logIn
         case signUp
@@ -21,20 +23,27 @@ struct AuthView: View {
                 colors: [
                     AppTheme.hoyaNavy,
                     AppTheme.hoyaNavyDeep,
-                    Color(hex: "0A2744")
+                    AppTheme.hoyaBlue.opacity(0.45)
                 ],
-                startPoint: .top,
-                endPoint: .bottom
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
+            .animation(.easeInOut(duration: 0.35), value: theme.college)
 
             switch route {
+            case .college:
+                CollegePickerView {
+                    go(.welcome)
+                }
+                .transition(.opacity)
             case .welcome:
                 WelcomeView(
                     onLogIn: { go(.logIn) },
-                    onSignUp: { go(.signUp) }
+                    onSignUp: { go(.signUp) },
+                    onChangeCollege: { go(.college) }
                 )
-                .transition(.move(edge: .leading).combined(with: .opacity))
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             case .logIn:
                 LogInView(onBack: { go(.welcome) }, onSwitchToSignUp: { go(.signUp) })
                     .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -44,6 +53,12 @@ struct AuthView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            // Returning users who already picked a school can skip straight to welcome.
+            if theme.college != nil, route == .college {
+                route = .welcome
+            }
+        }
     }
 
     private func go(_ target: Route) {
@@ -58,8 +73,10 @@ struct AuthView: View {
 
 private struct WelcomeView: View {
     @EnvironmentObject private var store: MarketplaceStore
+    @ObservedObject private var theme = ThemeCenter.shared
     var onLogIn: () -> Void
     var onSignUp: () -> Void
+    var onChangeCollege: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,16 +86,41 @@ private struct WelcomeView: View {
                 Text("MARKETPLACE")
                     .font(.system(size: 12, weight: .bold))
                     .tracking(2.4)
-                    .foregroundStyle(AppTheme.hoyaGrayLight)
+                    .foregroundStyle(Color.white.opacity(0.55))
 
-                Text("Georgetown\nMarketplace")
+                Text("\(theme.college?.shortName ?? "Campus")\nMarketplace")
                     .font(.system(size: 40, weight: .bold, design: .serif))
                     .foregroundStyle(.white)
+                    .animation(.easeInOut(duration: 0.25), value: theme.college)
 
                 Text("Buy it, bid on it, or borrow it — a cleaner Marketplace with real chat and profiles.")
                     .font(.system(size: 16))
                     .foregroundStyle(.white.opacity(0.72))
                     .fixedSize(horizontal: false, vertical: true)
+
+                if let college = theme.college {
+                    Button(action: onChangeCollege) {
+                        HStack(spacing: 8) {
+                            HStack(spacing: 0) {
+                                Color(hex: college.primaryHex)
+                                Color(hex: college.secondaryHex)
+                            }
+                            .frame(width: 28, height: 18)
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                            Text(college.name)
+                                .font(.system(size: 13, weight: .semibold))
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 11, weight: .bold))
+                        }
+                        .foregroundStyle(.white.opacity(0.9))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.white.opacity(0.12))
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 28)

@@ -4,27 +4,69 @@
 //
 
 import SwiftUI
+import Combine
+
+/// Observes the selected college and republishes colors so the UI can retheme live.
+@MainActor
+final class ThemeCenter: ObservableObject {
+    static let shared = ThemeCenter()
+
+    @Published var college: College? {
+        didSet {
+            if let college {
+                UserDefaults.standard.set(college.id, forKey: StorageKey.collegeId)
+            }
+        }
+    }
+
+    var brand: BrandTheme {
+        (college ?? CollegeCatalog.fallback).brand
+    }
+
+    private enum StorageKey {
+        static let collegeId = "gm.selectedCollegeId"
+    }
+
+    init() {
+        if let id = UserDefaults.standard.string(forKey: StorageKey.collegeId),
+           let saved = CollegeCatalog.college(id: id) {
+            college = saved
+        } else if let legacy = UserDefaults.standard.string(forKey: "gm.selectedCollege") {
+            // Migrate old enum-style keys if present.
+            college = CollegeCatalog.all.first {
+                $0.name.lowercased().contains(legacy.replacingOccurrences(of: "georgeWashington", with: "george washington").lowercased())
+                    || $0.shortName.lowercased() == legacy.lowercased()
+            }
+        }
+    }
+
+    func select(_ college: College) {
+        withAnimation(.easeInOut(duration: 0.35)) {
+            self.college = college
+        }
+    }
+}
 
 enum AppTheme {
-    /// Official-ish Hoya blue / gray
-    static let hoyaNavy = Color(hex: "041E42")
-    static let hoyaNavyDeep = Color(hex: "021530")
-    static let hoyaBlue = Color(hex: "1A3A6B")
-    static let hoyaGray = Color(hex: "8D817B")
-    static let hoyaGrayLight = Color(hex: "B7B0AB")
-    static let ink = Color(hex: "050505")
-    static let surface = Color(hex: "F0F2F5") // FB Marketplace feed gray
-    static let searchFill = Color(hex: "E4E6EB")
-    static let cardBorder = Color.black.opacity(0.06)
-    static let price = Color(hex: "041E42")
-    static let success = Color(hex: "31A24C")
+    private static var brand: BrandTheme { ThemeCenter.shared.brand }
+
+    static var hoyaNavy: Color { brand.primary }
+    static var hoyaNavyDeep: Color { brand.primaryDeep }
+    static var hoyaBlue: Color { brand.secondary }
+    static var hoyaGray: Color { brand.muted }
+    static var hoyaGrayLight: Color { brand.mutedLight }
+    static var ink: Color { brand.ink }
+    static var surface: Color { brand.surface }
+    static var searchFill: Color { brand.searchFill }
+    static var cardBorder: Color { Color.black.opacity(0.06) }
+    static var price: Color { brand.price }
+    static var success: Color { brand.success }
 
     static let listingCorner: CGFloat = 8
     static let imageCorner: CGFloat = 10
 }
 
 extension View {
-    /// Flat FB-style listing tile (light border, white body).
     func marketplaceCard() -> some View {
         self
             .background(Color.white)

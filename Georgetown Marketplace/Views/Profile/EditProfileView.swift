@@ -8,6 +8,7 @@ import SwiftUI
 struct EditProfileView: View {
     @EnvironmentObject private var store: MarketplaceStore
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var theme = ThemeCenter.shared
 
     var isOnboarding: Bool = false
 
@@ -15,9 +16,11 @@ struct EditProfileView: View {
     @State private var bio = ""
     @State private var location: CampusArea = .mainCampus
     @State private var role: AccountRole = .buyer
+    @State private var college: College = CollegeCatalog.fallback
     @State private var colorHex = "041E42"
+    @State private var showCollegePicker = false
 
-    private let colors = ["041E42", "1A3A6B", "6B4F3A", "8B1E1E", "2F5D50", "5B7C99", "4A3F6B"]
+    private let colors = ["041E42", "1A3A6B", "6B4F3A", "8B1E1E", "2F5D50", "5B7C99", "4A3F6B", "57068C", "C8102E", "115740"]
 
     var body: some View {
         NavigationStack {
@@ -60,6 +63,36 @@ struct EditProfileView: View {
                     Text("Avatar")
                 }
 
+                Section("College") {
+                    Button {
+                        showCollegePicker = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            HStack(spacing: 0) {
+                                Color(hex: college.primaryHex)
+                                Color(hex: college.secondaryHex)
+                            }
+                            .frame(width: 36, height: 28)
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(college.name)
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundStyle(AppTheme.ink)
+                                    .multilineTextAlignment(.leading)
+                                Text("Tap to search \(CollegeCatalog.all.count) schools")
+                                    .font(.caption)
+                                    .foregroundStyle(AppTheme.hoyaGray)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(AppTheme.hoyaGrayLight)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 Section("About you") {
                     TextField("Display name", text: $name)
                     TextField("Bio", text: $bio, axis: .vertical)
@@ -88,6 +121,7 @@ struct EditProfileView: View {
             .navigationTitle(isOnboarding ? "Set up your profile" : "Edit profile")
             .navigationBarTitleDisplayMode(.inline)
             .hoyaNavChrome()
+            .id(theme.college?.id ?? "none")
             .toolbar {
                 if !isOnboarding {
                     ToolbarItem(placement: .cancellationAction) {
@@ -102,6 +136,7 @@ struct EditProfileView: View {
                             bio: bio,
                             location: location,
                             role: role,
+                            college: college,
                             avatarColorHex: colorHex
                         )
                         dismiss()
@@ -111,13 +146,52 @@ struct EditProfileView: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+            .sheet(isPresented: $showCollegePicker) {
+                NavigationStack {
+                    ZStack {
+                        LinearGradient(
+                            colors: [AppTheme.hoyaNavy, AppTheme.hoyaNavyDeep, AppTheme.hoyaBlue.opacity(0.45)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .ignoresSafeArea()
+
+                        CollegePickerView(
+                            onContinue: {
+                                if let selected = theme.college {
+                                    college = selected
+                                    colorHex = selected.primaryHex
+                                }
+                                showCollegePicker = false
+                            },
+                            showsContinueButton: true,
+                            title: "Change your college",
+                            subtitle: "Search any U.S. school to retheme the app."
+                        )
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Close") { showCollegePicker = false }
+                                .foregroundStyle(.white)
+                        }
+                    }
+                }
+                .preferredColorScheme(.dark)
+            }
             .onAppear {
                 if let user = store.currentUser {
                     name = user.name
                     bio = user.bio
                     location = user.location
                     role = user.role
+                    college = theme.college ?? user.college
                     colorHex = user.avatarColorHex
+                }
+            }
+            .onChange(of: theme.college) { _, newValue in
+                if let newValue {
+                    college = newValue
+                    colorHex = newValue.primaryHex
                 }
             }
         }

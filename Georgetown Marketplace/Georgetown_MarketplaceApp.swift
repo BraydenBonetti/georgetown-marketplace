@@ -15,6 +15,7 @@ struct Georgetown_MarketplaceApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(store)
+                .environmentObject(ThemeCenter.shared)
         }
     }
 }

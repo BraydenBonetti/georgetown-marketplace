@@ -77,16 +77,18 @@ final class MarketplaceStore: ObservableObject {
             return
         }
 
+        let selectedCollege = ThemeCenter.shared.college ?? CollegeCatalog.fallback
         let user = UserProfile(
             id: "u-\(UUID().uuidString.prefix(8))",
             name: trimmedName,
             email: trimmedEmail,
             password: password,
             role: role,
+            college: selectedCollege,
             bio: "",
             location: .mainCampus,
             avatarSymbol: "person.crop.circle.fill",
-            avatarColorHex: role == .seller ? "041E42" : "1A3A6B",
+            avatarColorHex: selectedCollege.primaryHex,
             joinedAt: Date(),
             profileComplete: false
         )
@@ -109,6 +111,13 @@ final class MarketplaceStore: ObservableObject {
         }
 
         currentUser = user
+        if ThemeCenter.shared.college == nil {
+            ThemeCenter.shared.select(user.college)
+        } else if let college = ThemeCenter.shared.college,
+                  let idx = users.firstIndex(where: { $0.id == user.id }) {
+            users[idx].college = college
+            currentUser = users[idx]
+        }
         completeSignIn(promptProfileSetup: !user.profileComplete)
     }
 
@@ -120,6 +129,15 @@ final class MarketplaceStore: ObservableObject {
         } else {
             users.append(demo)
             currentUser = demo
+        }
+        if let college = ThemeCenter.shared.college {
+            // Keep the college they just picked on the welcome flow.
+            if let idx = users.firstIndex(where: { $0.id == currentUser?.id }) {
+                users[idx].college = college
+                currentUser = users[idx]
+            }
+        } else if let user = currentUser {
+            ThemeCenter.shared.select(user.college)
         }
         completeSignIn(promptProfileSetup: false)
     }
@@ -152,10 +170,11 @@ final class MarketplaceStore: ObservableObject {
                 email: email,
                 password: password,
                 role: role,
+                college: ThemeCenter.shared.college ?? CollegeCatalog.fallback,
                 bio: "",
                 location: .mainCampus,
                 avatarSymbol: "person.crop.circle.fill",
-                avatarColorHex: "041E42",
+                avatarColorHex: (ThemeCenter.shared.college ?? CollegeCatalog.fallback).primaryHex,
                 joinedAt: Date(),
                 profileComplete: false
             )
@@ -167,8 +186,11 @@ final class MarketplaceStore: ObservableObject {
         }
 
         isAuthenticated = true
-        if let id = currentUser?.id {
-            conversations = SampleData.seedConversations(currentUserId: id)
+        if let user = currentUser {
+            if ThemeCenter.shared.college == nil {
+                ThemeCenter.shared.college = user.college
+            }
+            conversations = SampleData.seedConversations(currentUserId: user.id)
         }
     }
 
@@ -199,6 +221,7 @@ final class MarketplaceStore: ObservableObject {
         bio: String,
         location: CampusArea,
         role: AccountRole,
+        college: College,
         avatarColorHex: String
     ) {
         guard let uid = currentUser?.id,
@@ -211,10 +234,12 @@ final class MarketplaceStore: ObservableObject {
         users[idx].bio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
         users[idx].location = location
         users[idx].role = role
+        users[idx].college = college
         users[idx].avatarColorHex = avatarColorHex
         users[idx].profileComplete = true
         currentUser = users[idx]
         needsProfileSetup = false
+        ThemeCenter.shared.select(college)
 
         UserDefaults.standard.set(users[idx].name, forKey: StorageKey.name)
         UserDefaults.standard.set(users[idx].role.rawValue, forKey: StorageKey.role)

@@ -7,6 +7,7 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject private var store: MarketplaceStore
+    @ObservedObject private var theme = ThemeCenter.shared
 
     var body: some View {
         Group {
@@ -21,12 +22,15 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: store.isAuthenticated)
+        .animation(.easeInOut(duration: 0.35), value: theme.college)
         .tint(AppTheme.hoyaNavy)
+        .id(theme.college?.id ?? "none")
     }
 }
 
 struct MainTabView: View {
     @EnvironmentObject private var store: MarketplaceStore
+    @ObservedObject private var theme = ThemeCenter.shared
 
     var body: some View {
         TabView(selection: $store.selectedTab) {
@@ -56,5 +60,6 @@ struct MainTabView: View {
         .tint(AppTheme.hoyaNavy)
         .toolbarBackground(Color.white, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
+        .id(theme.college?.id ?? "none")
     }
 }

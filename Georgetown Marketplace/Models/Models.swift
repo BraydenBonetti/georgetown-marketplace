@@ -73,6 +73,7 @@ struct UserProfile: Identifiable, Codable, Hashable {
     var email: String
     var password: String
     var role: AccountRole
+    var college: College
     var bio: String
     var location: CampusArea
     var avatarSymbol: String

@@ -40,6 +40,7 @@ struct ProfileView: View {
 
                             HStack(spacing: 8) {
                                 chip(user.role.rawValue, icon: user.role.systemImage)
+                                chip((ThemeCenter.shared.college ?? user.college).shortName, icon: "building.columns.fill")
                                 chip(user.location.rawValue, icon: "mappin")
                             }
 
