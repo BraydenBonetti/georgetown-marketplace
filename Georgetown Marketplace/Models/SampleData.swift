@@ -8,6 +8,17 @@ import Foundation
 enum SampleData {
     static let demoPassword = "demo1234"
 
+    /// Loads bundled sample-listing photos by resource name (JPEG). Returns [] while
+    /// the files don't exist yet, so those listings fall back to symbol placeholders.
+    static func bundledPhotos(_ names: String...) -> [Data] {
+        names.compactMap { name in
+            let url = Bundle.main.url(forResource: name, withExtension: "jpg")
+                ?? Bundle.main.url(forResource: name, withExtension: "jpg", subdirectory: "SamplePhotos")
+                ?? Bundle.main.url(forResource: name, withExtension: "jpg", subdirectory: "Resources/SamplePhotos")
+            return url.flatMap { try? Data(contentsOf: $0) }
+        }
+    }
+
     static let demoUser = UserProfile(
         id: "u-demo",
         name: "Demo Student",
@@ -72,7 +83,8 @@ enum SampleData {
             description: "Solid desk from last year. Chair included. Pickup from Harbin lobby.",
             imageSymbol: "desk", imageColorHex: "4A6FA5",
             createdAt: Date().addingTimeInterval(-3600 * 5), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-desk")
         ),
         Listing(
             id: "l2", sellerId: "u-jordan", title: "MacBook Air M1 charger", price: 25,
@@ -80,7 +92,8 @@ enum SampleData {
             description: "Original Apple 30W USB-C charger. Works perfectly.",
             imageSymbol: "cable.connector", imageColorHex: "2F2F2F",
             createdAt: Date().addingTimeInterval(-3600 * 12), status: .active,
-            savedBy: ["u-demo"], allowsLoan: true, loanPricePerWeek: 4, loanUntil: nil
+            savedBy: ["u-demo"], allowsLoan: true, loanPricePerWeek: 4, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-charger")
         ),
         Listing(
             id: "l3", sellerId: "u-demo", title: "Calc III textbook (Stewart)", price: 30,
@@ -88,7 +101,8 @@ enum SampleData {
             description: "Highlights in a few chapters. No missing pages. Buy it, or borrow it for the semester.",
             imageSymbol: "book.closed", imageColorHex: "6B4F3A",
             createdAt: Date().addingTimeInterval(-3600 * 28), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 5, loanUntil: nil
+            allowsLoan: true, loanPricePerWeek: 5, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-textbook")
         ),
         Listing(
             id: "l4", sellerId: "u-maya", title: "Mini fridge", price: 60,
@@ -96,7 +110,8 @@ enum SampleData {
             description: "Quiet mini fridge. Cleaned out. Perfect for a dorm or small room.",
             imageSymbol: "refrigerator", imageColorHex: "5B7C99",
             createdAt: Date().addingTimeInterval(-3600 * 48), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 10, loanUntil: nil
+            allowsLoan: true, loanPricePerWeek: 10, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-fridge")
         ),
         Listing(
             id: "l5", sellerId: "u-jordan", title: "Navy hoodie — L", price: 20,
@@ -104,7 +119,8 @@ enum SampleData {
             description: "Worn twice. Size L. Smoke-free apartment.",
             imageSymbol: "tshirt", imageColorHex: "041E42",
             createdAt: Date().addingTimeInterval(-3600 * 8), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-hoodie")
         ),
         Listing(
             id: "l6", sellerId: "u-demo", title: "Desk study lamp", price: 15,
@@ -112,7 +128,8 @@ enum SampleData {
             description: "Clip lamp + soft lamp. Great for late nights.",
             imageSymbol: "lamp.desk", imageColorHex: "C4A35A",
             createdAt: Date().addingTimeInterval(-3600 * 72), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 3, loanUntil: nil
+            allowsLoan: true, loanPricePerWeek: 3, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-lamp")
         ),
         Listing(
             id: "l7", sellerId: "u-maya", title: "Free — closet hangers", price: 0,
@@ -120,7 +137,8 @@ enum SampleData {
             description: "Bunch of plastic hangers. Free if you pick up today.",
             imageSymbol: "hanger", imageColorHex: "8A8A8A",
             createdAt: Date().addingTimeInterval(-3600 * 3), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-hangers")
         ),
         Listing(
             id: "l8", sellerId: "u-jordan", title: "AirPods Pro (2nd gen)", price: 120,
@@ -128,7 +146,8 @@ enum SampleData {
             description: "Case included, lightly used. No scratches.",
             imageSymbol: "airpods.pro", imageColorHex: "1A1A1A",
             createdAt: Date().addingTimeInterval(-3600 * 20), status: .active,
-            savedBy: ["u-demo"], allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            savedBy: ["u-demo"], allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-airpods")
         ),
         Listing(
             id: "l9", sellerId: "u-sam", title: "Basketball tickets (pair)", price: 40,
@@ -136,7 +155,8 @@ enum SampleData {
             description: "Two seats together. Transfer via Ticketmaster.",
             imageSymbol: "ticket", imageColorHex: "8B1E1E",
             createdAt: Date().addingTimeInterval(-3600 * 6), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
+            photosData: SampleData.bundledPhotos("sample-tickets")
         )
     ]
 
