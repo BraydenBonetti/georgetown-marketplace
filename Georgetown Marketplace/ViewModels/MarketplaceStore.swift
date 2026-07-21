@@ -370,7 +370,8 @@ final class MarketplaceStore: ObservableObject {
         location: CampusArea,
         description: String,
         allowsLoan: Bool,
-        loanPricePerWeek: Double?
+        loanPricePerWeek: Double?,
+        photosData: [Data] = []
     ) {
         guard let uid = currentUser?.id else { return }
         let listing = Listing(
@@ -389,7 +390,8 @@ final class MarketplaceStore: ObservableObject {
             savedBy: [],
             allowsLoan: allowsLoan,
             loanPricePerWeek: allowsLoan ? loanPricePerWeek : nil,
-            loanUntil: nil
+            loanUntil: nil,
+            photosData: photosData
         )
         listings.insert(listing, at: 0)
         selectedTab = .browse

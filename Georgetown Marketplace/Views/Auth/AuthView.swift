@@ -129,13 +129,8 @@ private struct WelcomeView: View {
                 HStack(spacing: 10) {
                     ForEach(SampleData.listings.prefix(4)) { listing in
                         VStack(alignment: .leading, spacing: 6) {
-                            ListingImagePlaceholder(
-                                symbol: listing.imageSymbol,
-                                hex: listing.imageColorHex,
-                                height: 100,
-                                cornerRadius: 10
-                            )
-                            .frame(width: 120)
+                            ListingPhotoView(listing: listing, height: 100, cornerRadius: 10)
+                                .frame(width: 120)
                             Text(listing.askLabel)
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundStyle(.white)

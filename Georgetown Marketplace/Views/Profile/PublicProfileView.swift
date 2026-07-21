@@ -161,13 +161,8 @@ struct PublicProfileView: View {
                         ListingDetailView(listing: listing)
                     } label: {
                         HStack(spacing: 12) {
-                            ListingImagePlaceholder(
-                                symbol: listing.imageSymbol,
-                                hex: listing.imageColorHex,
-                                height: 56,
-                                cornerRadius: 8
-                            )
-                            .frame(width: 56)
+                            ListingPhotoView(listing: listing, height: 56, cornerRadius: 8)
+                                .frame(width: 56)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(listing.title)

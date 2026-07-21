@@ -149,12 +149,13 @@ struct ConversationRow: View {
     var body: some View {
         HStack(spacing: 12) {
             ZStack(alignment: .bottomTrailing) {
-                ListingImagePlaceholder(
-                    symbol: listing?.imageSymbol ?? "bag",
-                    hex: listing?.imageColorHex ?? "041E42",
-                    height: 56,
-                    cornerRadius: 8
-                )
+                Group {
+                    if let listing {
+                        ListingPhotoView(listing: listing, height: 56, cornerRadius: 8)
+                    } else {
+                        ListingImagePlaceholder(symbol: "bag", hex: "041E42", height: 56, cornerRadius: 8)
+                    }
+                }
                 .frame(width: 56)
 
                 if let other {
@@ -248,13 +249,8 @@ struct ChatThreadView: View {
                     ListingDetailView(listing: listing)
                 } label: {
                     HStack(spacing: 10) {
-                        ListingImagePlaceholder(
-                            symbol: listing.imageSymbol,
-                            hex: listing.imageColorHex,
-                            height: 48,
-                            cornerRadius: 8
-                        )
-                        .frame(width: 48)
+                        ListingPhotoView(listing: listing, height: 48, cornerRadius: 8)
+                            .frame(width: 48)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(listing.title)

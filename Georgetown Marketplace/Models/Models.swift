@@ -110,6 +110,8 @@ struct Listing: Identifiable, Codable, Hashable {
     var allowsLoan: Bool
     var loanPricePerWeek: Double?
     var loanUntil: Date?
+    /// JPEG data for user-added photos; first entry is the cover. Empty = symbol placeholder.
+    var photosData: [Data] = []
 
     var priceLabel: String {
         Listing.money(price)

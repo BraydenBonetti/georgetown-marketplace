@@ -31,12 +31,7 @@ struct ListingDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .topLeading) {
-                    ListingImagePlaceholder(
-                        symbol: liveListing.imageSymbol,
-                        hex: liveListing.imageColorHex,
-                        height: 300,
-                        cornerRadius: 0
-                    )
+                    ListingHeroPhotos(listing: liveListing, height: 300)
 
                     if liveListing.status != .active {
                         Text(liveListing.status.label.uppercased())

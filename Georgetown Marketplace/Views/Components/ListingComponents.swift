@@ -43,6 +43,78 @@ struct ListingImagePlaceholder: View {
     }
 }
 
+/// Shows the listing's cover photo when it has one, else the symbol placeholder.
+struct ListingPhotoView: View {
+    let listing: Listing
+    var height: CGFloat = 140
+    var cornerRadius: CGFloat = AppTheme.imageCorner
+
+    var body: some View {
+        if let data = listing.photosData.first, let image = UIImage(data: data) {
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .frame(height: height)
+                .overlay(
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                )
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        } else {
+            ListingImagePlaceholder(
+                symbol: listing.imageSymbol,
+                hex: listing.imageColorHex,
+                height: height,
+                cornerRadius: cornerRadius
+            )
+        }
+    }
+}
+
+/// Detail-page hero: swipeable page view over the listing's photos.
+struct ListingHeroPhotos: View {
+    let listing: Listing
+    var height: CGFloat = 300
+
+    var body: some View {
+        if listing.photosData.isEmpty {
+            ListingImagePlaceholder(
+                symbol: listing.imageSymbol,
+                hex: listing.imageColorHex,
+                height: height,
+                cornerRadius: 0
+            )
+        } else if listing.photosData.count == 1 {
+            photo(listing.photosData[0])
+        } else {
+            TabView {
+                ForEach(Array(listing.photosData.enumerated()), id: \.offset) { _, data in
+                    photo(data)
+                }
+            }
+            .tabViewStyle(.page)
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .frame(height: height)
+        }
+    }
+
+    private func photo(_ data: Data) -> some View {
+        Color.clear
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .overlay {
+                if let image = UIImage(data: data) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Color.black.opacity(0.05)
+                }
+            }
+            .clipped()
+    }
+}
+
 /// Facebook Marketplace–style listing tile.
 struct ListingCard: View {
     @EnvironmentObject private var store: MarketplaceStore
@@ -57,9 +129,8 @@ struct ListingCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topTrailing) {
-                ListingImagePlaceholder(
-                    symbol: listing.imageSymbol,
-                    hex: listing.imageColorHex,
+                ListingPhotoView(
+                    listing: listing,
                     height: 168,
                     cornerRadius: AppTheme.imageCorner
                 )
