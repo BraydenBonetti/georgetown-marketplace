@@ -213,6 +213,7 @@ struct ProfileView: View {
                             if let reviewer = store.user(id: review.reviewerId) {
                                 Text(reviewer.name)
                                     .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(AppTheme.ink)
                             }
                             Spacer()
                             StarRatingView(rating: Double(review.rating), size: 11)

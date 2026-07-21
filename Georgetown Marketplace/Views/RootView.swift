@@ -13,6 +13,10 @@ struct RootView: View {
         Group {
             if store.isAuthenticated {
                 MainTabView()
+                    // Every surface in the main app is a hardcoded light color, so pin
+                    // light mode — otherwise system dark mode turns default-colored
+                    // text white-on-white (the auth flow pins dark for the same reason).
+                    .preferredColorScheme(.light)
                     .sheet(isPresented: $store.needsProfileSetup) {
                         EditProfileView(isOnboarding: true)
                             .interactiveDismissDisabled()

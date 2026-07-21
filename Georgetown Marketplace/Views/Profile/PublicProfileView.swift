@@ -216,6 +216,7 @@ struct PublicProfileView: View {
                                 AvatarView(user: reviewer, size: 28)
                                 Text(reviewer.name)
                                     .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(AppTheme.ink)
                             }
                             Spacer()
                             StarRatingView(rating: Double(review.rating), size: 11)
