@@ -76,89 +76,60 @@ enum SampleData {
         )
     ]
 
-    static let listings: [Listing] = [
-        Listing(
-            id: "l1", sellerId: "u-maya", title: "IKEA desk + chair", price: 45,
-            category: .furniture, condition: .good, location: .harbin,
-            description: "Solid desk from last year. Chair included. Pickup from Harbin lobby.",
-            imageSymbol: "desk", imageColorHex: "4A6FA5",
-            createdAt: Date().addingTimeInterval(-3600 * 5), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-desk")
-        ),
-        Listing(
-            id: "l2", sellerId: "u-jordan", title: "MacBook Air M1 charger", price: 25,
-            category: .electronics, condition: .likeNew, location: .mainCampus,
-            description: "Original Apple 30W USB-C charger. Works perfectly.",
-            imageSymbol: "cable.connector", imageColorHex: "2F2F2F",
-            createdAt: Date().addingTimeInterval(-3600 * 12), status: .active,
-            savedBy: ["u-demo"], allowsLoan: true, loanPricePerWeek: 4, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-charger")
-        ),
-        Listing(
-            id: "l3", sellerId: "u-demo", title: "Calc III textbook (Stewart)", price: 30,
-            category: .textbooks, condition: .good, location: .copley,
-            description: "Highlights in a few chapters. No missing pages. Buy it, or borrow it for the semester.",
-            imageSymbol: "book.closed", imageColorHex: "6B4F3A",
-            createdAt: Date().addingTimeInterval(-3600 * 28), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 5, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-textbook")
-        ),
-        Listing(
-            id: "l4", sellerId: "u-maya", title: "Mini fridge", price: 60,
-            category: .dorm, condition: .good, location: .villageA,
-            description: "Quiet mini fridge. Cleaned out. Perfect for a dorm or small room.",
-            imageSymbol: "refrigerator", imageColorHex: "5B7C99",
-            createdAt: Date().addingTimeInterval(-3600 * 48), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 10, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-fridge")
-        ),
-        Listing(
-            id: "l5", sellerId: "u-jordan", title: "Navy hoodie — L", price: 20,
-            category: .clothing, condition: .likeNew, location: .mainCampus,
-            description: "Worn twice. Size L. Smoke-free apartment.",
-            imageSymbol: "tshirt", imageColorHex: "041E42",
-            createdAt: Date().addingTimeInterval(-3600 * 8), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-hoodie")
-        ),
-        Listing(
-            id: "l6", sellerId: "u-demo", title: "Desk study lamp", price: 15,
-            category: .dorm, condition: .good, location: .nevils,
-            description: "Clip lamp + soft lamp. Great for late nights.",
-            imageSymbol: "lamp.desk", imageColorHex: "C4A35A",
-            createdAt: Date().addingTimeInterval(-3600 * 72), status: .active, savedBy: [],
-            allowsLoan: true, loanPricePerWeek: 3, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-lamp")
-        ),
-        Listing(
-            id: "l7", sellerId: "u-maya", title: "Free — closet hangers", price: 0,
-            category: .dorm, condition: .good, location: .harbin,
-            description: "Bunch of plastic hangers. Free if you pick up today.",
-            imageSymbol: "hanger", imageColorHex: "8A8A8A",
-            createdAt: Date().addingTimeInterval(-3600 * 3), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-hangers")
-        ),
-        Listing(
-            id: "l8", sellerId: "u-jordan", title: "AirPods Pro (2nd gen)", price: 120,
-            category: .electronics, condition: .likeNew, location: .villageC,
-            description: "Case included, lightly used. No scratches.",
-            imageSymbol: "airpods.pro", imageColorHex: "1A1A1A",
-            createdAt: Date().addingTimeInterval(-3600 * 20), status: .active,
-            savedBy: ["u-demo"], allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-airpods")
-        ),
-        Listing(
-            id: "l9", sellerId: "u-sam", title: "Basketball tickets (pair)", price: 40,
-            category: .tickets, condition: .new, location: .mainCampus,
-            description: "Two seats together. Transfer via Ticketmaster.",
-            imageSymbol: "ticket", imageColorHex: "8B1E1E",
-            createdAt: Date().addingTimeInterval(-3600 * 6), status: .active, savedBy: [],
-            allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil,
-            photosData: SampleData.bundledPhotos("sample-tickets")
-        )
-    ]
+    private struct ListingSeed: Decodable {
+        let id: String
+        let sellerId: String
+        let title: String
+        let price: Double
+        let category: String
+        let condition: String
+        let location: String
+        let description: String
+        let imageSymbol: String
+        let imageColorHex: String
+        let hoursAgo: Double
+        let allowsLoan: Bool
+        let loanPricePerWeek: Double?
+        let savedBy: [String]
+        let photo: String
+    }
+
+    static let listings: [Listing] = loadListings()
+
+    private static func loadListings() -> [Listing] {
+        let urls = [
+            Bundle.main.url(forResource: "sample_listings", withExtension: "json"),
+            Bundle.main.url(forResource: "sample_listings", withExtension: "json", subdirectory: "Resources")
+        ].compactMap { $0 }
+
+        guard let url = urls.first,
+              let data = try? Data(contentsOf: url),
+              let seeds = try? JSONDecoder().decode([ListingSeed].self, from: data) else {
+            return []
+        }
+
+        return seeds.map { seed in
+            Listing(
+                id: seed.id,
+                sellerId: seed.sellerId,
+                title: seed.title,
+                price: seed.price,
+                category: ListingCategory(rawValue: seed.category) ?? .other,
+                condition: ItemCondition(rawValue: seed.condition) ?? .good,
+                location: CampusArea(rawValue: seed.location) ?? .mainCampus,
+                description: seed.description,
+                imageSymbol: seed.imageSymbol,
+                imageColorHex: seed.imageColorHex,
+                createdAt: Date().addingTimeInterval(-3600 * seed.hoursAgo),
+                status: .active,
+                savedBy: seed.savedBy,
+                allowsLoan: seed.allowsLoan,
+                loanPricePerWeek: seed.loanPricePerWeek,
+                loanUntil: nil,
+                photosData: bundledPhotos(seed.photo)
+            )
+        }
+    }
 
     static let offers: [Offer] = [
         Offer(id: "o1", listingId: "l3", userId: "u-jordan", kind: .bid, amount: 24, weeks: nil,
@@ -168,7 +139,11 @@ enum SampleData {
         Offer(id: "o3", listingId: "l6", userId: "u-sam", kind: .loan, amount: 6, weeks: 2,
               createdAt: Date().addingTimeInterval(-1800), status: .pending),
         Offer(id: "o4", listingId: "l1", userId: "u-demo", kind: .bid, amount: 38, weeks: nil,
-              createdAt: Date().addingTimeInterval(-900), status: .pending)
+              createdAt: Date().addingTimeInterval(-900), status: .pending),
+        Offer(id: "o5", listingId: "l30", userId: "u-demo", kind: .bid, amount: 125, weeks: nil,
+              createdAt: Date().addingTimeInterval(-1200), status: .pending),
+        Offer(id: "o6", listingId: "l99", userId: "u-maya", kind: .bid, amount: 250, weeks: nil,
+              createdAt: Date().addingTimeInterval(-2400), status: .pending)
     ]
 
     static let reviews: [UserReview] = [

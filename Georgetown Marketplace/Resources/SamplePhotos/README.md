@@ -1,19 +1,24 @@
 # Sample listing photos
 
-Real JPEGs for the sample Marketplace listings. `SampleData.bundledPhotos`
-loads them by filename; if a file is missing, that listing falls back to the
-gradient/symbol placeholder.
+Real JPEGs for the sample Marketplace listings. `SampleData` loads
+`sample_listings.json` (109 listings) and attaches photos via
+`bundledPhotos` by filename. If a file is missing, that listing falls
+back to the gradient/symbol placeholder.
 
-| File | Listing |
+## Naming
+
+| Pattern | Example |
 |---|---|
-| `sample-desk.jpg` | IKEA desk + chair |
-| `sample-charger.jpg` | MacBook Air M1 charger |
-| `sample-textbook.jpg` | Calc III textbook (Stewart) |
-| `sample-fridge.jpg` | Mini fridge |
-| `sample-hoodie.jpg` | Navy hoodie — L |
-| `sample-lamp.jpg` | Desk study lamp |
-| `sample-hangers.jpg` | Free — closet hangers |
-| `sample-airpods.jpg` | AirPods Pro (2nd gen) |
-| `sample-tickets.jpg` | Basketball tickets (pair) |
+| Original set | `sample-desk.jpg`, `sample-textbook.jpg`, … |
+| Expanded set | `sample-l10.jpg` … `sample-l109.jpg` |
 
-Photos sourced from Unsplash (free license). Roughly ≤1400px on the long edge.
+Textbooks use Open Library cover art with exact titles/ISBNs in the
+listing copy. Other items use Unsplash product/lifestyle photos.
+
+Rebuild / refresh with:
+
+```bash
+python3 scripts/build_sample_catalog.py
+```
+
+Photos are roughly ≤1000px on the long edge.
