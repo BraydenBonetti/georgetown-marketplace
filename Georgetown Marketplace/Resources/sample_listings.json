@@ -104,23 +104,6 @@
     "photo": "sample-lamp"
   },
   {
-    "id": "l7",
-    "sellerId": "u-maya",
-    "title": "Free \u2014 Plastic Closet Hangers (25)",
-    "price": 0,
-    "category": "Dorm Essentials",
-    "condition": "Good",
-    "location": "Harbin",
-    "description": "Bunch of plastic hangers. Free if you pick up today.",
-    "imageSymbol": "hanger",
-    "imageColorHex": "8A8A8A",
-    "hoursAgo": 3,
-    "allowsLoan": false,
-    "loanPricePerWeek": null,
-    "savedBy": [],
-    "photo": "sample-hangers"
-  },
-  {
     "id": "l8",
     "sellerId": "u-jordan",
     "title": "Apple AirPods Pro (2nd generation)",
@@ -1565,23 +1548,6 @@
     "loanPricePerWeek": null,
     "savedBy": [],
     "photo": "sample-l91"
-  },
-  {
-    "id": "l92",
-    "sellerId": "u-demo",
-    "title": "Smithsonian Museum Late Night Pass (2)",
-    "price": 0,
-    "category": "Tickets",
-    "condition": "New",
-    "location": "Copley",
-    "description": "Free extras from a friend. This Friday 6\u20139pm.",
-    "imageSymbol": "ticket",
-    "imageColorHex": "041E42",
-    "hoursAgo": 83,
-    "allowsLoan": false,
-    "loanPricePerWeek": null,
-    "savedBy": [],
-    "photo": "sample-l92"
   },
   {
     "id": "l93",

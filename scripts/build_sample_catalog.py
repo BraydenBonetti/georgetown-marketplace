@@ -76,14 +76,6 @@ EXISTING = [
         "photo": "sample-lamp", "url": u("photo-1507473885765-e6ed057f782c"),
     },
     {
-        "id": "l7", "sellerId": "u-maya", "title": "Free — Plastic Closet Hangers (25)",
-        "price": 0, "category": "Dorm Essentials", "condition": "Good", "location": "Harbin",
-        "description": "Bunch of plastic hangers. Free if you pick up today.",
-        "imageSymbol": "hanger", "imageColorHex": "8A8A8A", "hoursAgo": 3,
-        "allowsLoan": False, "loanPricePerWeek": None, "savedBy": [],
-        "photo": "sample-hangers", "url": u("photo-1558618666-fcd25c85f82e"),
-    },
-    {
         "id": "l8", "sellerId": "u-jordan", "title": "Apple AirPods Pro (2nd generation)",
         "price": 120, "category": "Electronics", "condition": "Like new", "location": "Village C",
         "description": "Case included, lightly used. No scratches. MagSafe charging case.",
@@ -360,9 +352,6 @@ NEW = [
     ("l91", "u-jordan", "Capital One Arena Concert GA — Floor", 95, "Tickets", "New", "Main Campus",
      "One general admission floor ticket. Will transfer ASAP.", "ticket", "1A1A1A",
      False, None, u("photo-1470229722913-7c0e2dbbafd3")),
-    ("l92", "u-demo", "Smithsonian Museum Late Night Pass (2)", 0, "Tickets", "New", "Copley",
-     "Free extras from a friend. This Friday 6–9pm.", "ticket", "041E42",
-     False, None, u("photo-1565060169187-583bb326be62")),
     ("l93", "u-sam", "Washington Wizards Tickets (Pair) — Upper Bowl", 48, "Tickets", "New", "Off Campus",
      "Weeknight game. Side-by-side seats.", "ticket", "8B1E1E",
      False, None, u("photo-1504450758481-7338eba7524a")),
@@ -477,7 +466,7 @@ def download_one(item: dict) -> tuple[str, bool, str]:
 
 def main():
     catalog = EXISTING + expand_new(NEW)
-    assert len(catalog) == 109, len(catalog)
+    assert len(catalog) == 107, len(catalog)
     PHOTO_DIR.mkdir(parents=True, exist_ok=True)
 
     print(f"Downloading {len(catalog)} photos…")

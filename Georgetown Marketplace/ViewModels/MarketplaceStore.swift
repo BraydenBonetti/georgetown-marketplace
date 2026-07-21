@@ -19,7 +19,6 @@ final class MarketplaceStore: ObservableObject {
     @Published var selectedCategory: ListingCategory = .all
     @Published var searchText: String = ""
     @Published var selectedTab: MarketplaceTab = .browse
-    @Published var showFreeOnly: Bool = false
     @Published var showBorrowableOnly: Bool = false
     @Published var sortMode: BrowseSort = .newest
 
@@ -294,9 +293,6 @@ final class MarketplaceStore: ObservableObject {
                     || $0.location.rawValue.localizedCaseInsensitiveContains(searchText)
             }
 
-        if showFreeOnly {
-            result = result.filter { $0.price == 0 }
-        }
         if showBorrowableOnly {
             result = result.filter { $0.allowsLoan }
         }
@@ -314,14 +310,12 @@ final class MarketplaceStore: ObservableObject {
     func clearBrowseFilters() {
         searchText = ""
         selectedCategory = .all
-        showFreeOnly = false
         showBorrowableOnly = false
         sortMode = .newest
     }
 
     var activeFilterCount: Int {
         var count = 0
-        if showFreeOnly { count += 1 }
         if showBorrowableOnly { count += 1 }
         if selectedCategory != .all { count += 1 }
         if !searchText.isEmpty { count += 1 }

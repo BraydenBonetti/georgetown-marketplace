@@ -30,16 +30,6 @@ struct BrowseView: View {
                                 store.selectedTab = .sell
                             }
                             FilterPill(
-                                title: "Free",
-                                systemImage: "gift",
-                                isSelected: store.showFreeOnly
-                            ) {
-                                withAnimation(.easeInOut(duration: 0.15)) {
-                                    store.showFreeOnly.toggle()
-                                    if store.showFreeOnly { store.searchText = "" }
-                                }
-                            }
-                            FilterPill(
                                 title: "Borrow",
                                 systemImage: "clock.arrow.circlepath",
                                 isSelected: store.showBorrowableOnly

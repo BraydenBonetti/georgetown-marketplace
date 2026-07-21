@@ -42,7 +42,7 @@ struct SellView: View {
                             Text("$")
                                 .font(.system(size: 17, weight: .bold))
                                 .foregroundStyle(AppTheme.hoyaNavy)
-                            TextField("0 for free", text: $priceText)
+                            TextField("Price", text: $priceText)
                                 .keyboardType(.decimalPad)
                         }
                         .padding(12)
@@ -313,8 +313,8 @@ struct SellView: View {
             return
         }
         let price = Double(priceText.replacingOccurrences(of: "$", with: "")) ?? -1
-        guard price >= 0 else {
-            errorMessage = "Enter a valid price (or 0 for free)."
+        guard price > 0 else {
+            errorMessage = "Enter a price greater than $0."
             showError = true
             return
         }
