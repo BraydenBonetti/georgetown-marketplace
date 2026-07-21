@@ -8,14 +8,13 @@ import Foundation
 enum SampleData {
     static let demoPassword = "demo1234"
 
-    static let demoBuyer = UserProfile(
-        id: "u-demo-buyer",
-        name: "Demo Buyer",
-        email: "demo.buyer@example.com",
+    static let demoUser = UserProfile(
+        id: "u-demo",
+        name: "Demo Student",
+        email: "demo@example.com",
         password: demoPassword,
-        role: .buyer,
         college: CollegeCatalog.fallback,
-        bio: "Looking for dorm essentials and textbooks at fair prices.",
+        bio: "Hunting for dorm essentials, clearing out what I don't use. Happy to meet on campus.",
         location: .mainCampus,
         avatarSymbol: "person.crop.circle.fill",
         avatarColorHex: "1A3A6B",
@@ -23,30 +22,13 @@ enum SampleData {
         profileComplete: true
     )
 
-    static let demoSeller = UserProfile(
-        id: "u-demo-seller",
-        name: "Demo Seller",
-        email: "demo.seller@example.com",
-        password: demoPassword,
-        role: .seller,
-        college: CollegeCatalog.fallback,
-        bio: "Clearing out before summer. Happy to meet on campus.",
-        location: .copley,
-        avatarSymbol: "person.crop.circle.fill",
-        avatarColorHex: "041E42",
-        joinedAt: Date().addingTimeInterval(-86400 * 120),
-        profileComplete: true
-    )
-
     static let users: [UserProfile] = [
-        demoBuyer,
-        demoSeller,
+        demoUser,
         UserProfile(
             id: "u-maya",
             name: "Maya Chen",
             email: "maya.chen@gmail.com",
             password: "password",
-            role: .seller,
             college: CollegeCatalog.fallback,
             bio: "Neighborhood thrift queen. Fast replies, fair prices, easy meetups.",
             location: .harbin,
@@ -60,7 +42,6 @@ enum SampleData {
             name: "Jordan Lee",
             email: "jordanlee@outlook.com",
             password: "password",
-            role: .seller,
             college: CollegeCatalog.fallback,
             bio: "Textbooks + tech. Prefer Leavey or library pickups.",
             location: .mainCampus,
@@ -74,7 +55,6 @@ enum SampleData {
             name: "Sam Ortiz",
             email: "sam.ortiz@yahoo.com",
             password: "password",
-            role: .seller,
             college: CollegeCatalog.fallback,
             bio: "Moving out — everything must go this week.",
             location: .offCampus,
@@ -100,10 +80,10 @@ enum SampleData {
             description: "Original Apple 30W USB-C charger. Works perfectly.",
             imageSymbol: "cable.connector", imageColorHex: "2F2F2F",
             createdAt: Date().addingTimeInterval(-3600 * 12), status: .active,
-            savedBy: ["u-demo-buyer"], allowsLoan: true, loanPricePerWeek: 4, loanUntil: nil
+            savedBy: ["u-demo"], allowsLoan: true, loanPricePerWeek: 4, loanUntil: nil
         ),
         Listing(
-            id: "l3", sellerId: "u-demo-seller", title: "Calc III textbook (Stewart)", price: 30,
+            id: "l3", sellerId: "u-demo", title: "Calc III textbook (Stewart)", price: 30,
             category: .textbooks, condition: .good, location: .copley,
             description: "Highlights in a few chapters. No missing pages. Buy it, or borrow it for the semester.",
             imageSymbol: "book.closed", imageColorHex: "6B4F3A",
@@ -127,7 +107,7 @@ enum SampleData {
             allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
         ),
         Listing(
-            id: "l6", sellerId: "u-demo-seller", title: "Desk study lamp", price: 15,
+            id: "l6", sellerId: "u-demo", title: "Desk study lamp", price: 15,
             category: .dorm, condition: .good, location: .nevils,
             description: "Clip lamp + soft lamp. Great for late nights.",
             imageSymbol: "lamp.desk", imageColorHex: "C4A35A",
@@ -148,7 +128,7 @@ enum SampleData {
             description: "Case included, lightly used. No scratches.",
             imageSymbol: "airpods.pro", imageColorHex: "1A1A1A",
             createdAt: Date().addingTimeInterval(-3600 * 20), status: .active,
-            savedBy: ["u-demo-buyer"], allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
+            savedBy: ["u-demo"], allowsLoan: false, loanPricePerWeek: nil, loanUntil: nil
         ),
         Listing(
             id: "l9", sellerId: "u-sam", title: "Basketball tickets (pair)", price: 40,
@@ -167,7 +147,7 @@ enum SampleData {
               createdAt: Date().addingTimeInterval(-3600), status: .pending),
         Offer(id: "o3", listingId: "l6", userId: "u-sam", kind: .loan, amount: 6, weeks: 2,
               createdAt: Date().addingTimeInterval(-1800), status: .pending),
-        Offer(id: "o4", listingId: "l1", userId: "u-demo-buyer", kind: .bid, amount: 38, weeks: nil,
+        Offer(id: "o4", listingId: "l1", userId: "u-demo", kind: .bid, amount: 38, weeks: nil,
               createdAt: Date().addingTimeInterval(-900), status: .pending)
     ]
 
@@ -188,7 +168,7 @@ enum SampleData {
             createdAt: Date().addingTimeInterval(-86400 * 5)
         ),
         UserReview(
-            id: "r4", reviewerId: "u-demo-buyer", revieweeId: "u-jordan", listingId: "l2",
+            id: "r4", reviewerId: "u-demo", revieweeId: "u-jordan", listingId: "l2",
             rating: 5, comment: "Charger works great. Would buy again.",
             createdAt: Date().addingTimeInterval(-86400 * 2)
         )
@@ -202,34 +182,65 @@ enum SampleData {
     ]
 
     static func seedConversations(currentUserId: String) -> [Conversation] {
-        let listing = listings[1]
-        guard listing.sellerId != currentUserId else { return [] }
-        let convoId = "c1"
         let now = Date()
-        return [
-            Conversation(
-                id: convoId,
-                listingId: listing.id,
-                buyerId: currentUserId,
-                sellerId: listing.sellerId,
-                updatedAt: now.addingTimeInterval(-1800),
-                messages: [
-                    ChatMessage(
-                        id: "m1", conversationId: convoId, senderId: currentUserId,
-                        text: "Hey — is the charger still available?",
-                        sentAt: now.addingTimeInterval(-3600)
-                    ),
-                    ChatMessage(
-                        id: "m2", conversationId: convoId, senderId: listing.sellerId,
-                        text: "Yep! Can meet at the library tomorrow after 3.",
-                        sentAt: now.addingTimeInterval(-1800)
-                    )
-                ],
-                lastReadAtByUser: [
-                    currentUserId: now.addingTimeInterval(-4000),
-                    listing.sellerId: now
-                ]
+        var seeded: [Conversation] = []
+
+        // A chat where the current user is buying (someone else's listing).
+        if let listing = listings.first(where: { $0.sellerId != currentUserId }) {
+            let convoId = "c1"
+            seeded.append(
+                Conversation(
+                    id: convoId,
+                    listingId: listing.id,
+                    buyerId: currentUserId,
+                    sellerId: listing.sellerId,
+                    updatedAt: now.addingTimeInterval(-1800),
+                    messages: [
+                        ChatMessage(
+                            id: "m1", conversationId: convoId, senderId: currentUserId,
+                            text: "Hey — is this still available?",
+                            sentAt: now.addingTimeInterval(-3600)
+                        ),
+                        ChatMessage(
+                            id: "m2", conversationId: convoId, senderId: listing.sellerId,
+                            text: "Yep! Can meet at the library tomorrow after 3.",
+                            sentAt: now.addingTimeInterval(-1800)
+                        )
+                    ],
+                    lastReadAtByUser: [
+                        currentUserId: now.addingTimeInterval(-4000),
+                        listing.sellerId: now
+                    ]
+                )
             )
-        ]
+        }
+
+        // A chat where the current user is selling (an inbound buyer on their listing).
+        if let listing = listings.first(where: { $0.sellerId == currentUserId }),
+           let buyer = users.first(where: { $0.id != currentUserId }) {
+            let convoId = "c2"
+            seeded.append(
+                Conversation(
+                    id: convoId,
+                    listingId: listing.id,
+                    buyerId: buyer.id,
+                    sellerId: currentUserId,
+                    updatedAt: now.addingTimeInterval(-600),
+                    messages: [
+                        ChatMessage(
+                            id: "m3", conversationId: convoId, senderId: buyer.id,
+                            text: "Hi! Would you take a bit less if I pick it up today?",
+                            sentAt: now.addingTimeInterval(-600)
+                        )
+                    ],
+                    lastReadAtByUser: [
+                        buyer.id: now,
+                        currentUserId: now.addingTimeInterval(-3600)
+                    ]
+                )
+            )
+        }
+
+        return seeded
     }
 }

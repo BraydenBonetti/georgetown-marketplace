@@ -80,7 +80,6 @@ struct PublicProfileView: View {
             }
 
             HStack(spacing: 16) {
-                labelChip(user.role.rawValue, icon: user.role.systemImage)
                 labelChip(user.location.rawValue, icon: "mappin")
                 labelChip("Joined \(user.memberSinceLabel)", icon: "calendar")
             }

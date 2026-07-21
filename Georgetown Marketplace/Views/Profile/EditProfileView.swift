@@ -15,7 +15,6 @@ struct EditProfileView: View {
     @State private var name = ""
     @State private var bio = ""
     @State private var location: CampusArea = .mainCampus
-    @State private var role: AccountRole = .buyer
     @State private var college: College = CollegeCatalog.fallback
     @State private var colorHex = "041E42"
     @State private var showCollegePicker = false
@@ -104,19 +103,6 @@ struct EditProfileView: View {
                     }
                 }
 
-                Section("Account type") {
-                    Picker("I mostly want to", selection: $role) {
-                        Text("Buy").tag(AccountRole.buyer)
-                        Text("Sell").tag(AccountRole.seller)
-                    }
-                    .pickerStyle(.segmented)
-
-                    Text(role == .seller
-                         ? "You'll get a Sell tab to post listings, set asks, and accept bids or loans."
-                         : "You'll browse, bid, borrow, and message sellers. You can switch later.")
-                        .font(.caption)
-                        .foregroundStyle(AppTheme.hoyaGray)
-                }
             }
             .navigationTitle(isOnboarding ? "Set up your profile" : "Edit profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -135,7 +121,6 @@ struct EditProfileView: View {
                             name: name,
                             bio: bio,
                             location: location,
-                            role: role,
                             college: college,
                             avatarColorHex: colorHex
                         )
@@ -183,7 +168,6 @@ struct EditProfileView: View {
                     name = user.name
                     bio = user.bio
                     location = user.location
-                    role = user.role
                     college = theme.college ?? user.college
                     colorHex = user.avatarColorHex
                 }

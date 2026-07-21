@@ -26,10 +26,8 @@ struct BrowseView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            if store.isSeller {
-                                FilterPill(title: "Sell", systemImage: "plus") {
-                                    store.selectedTab = .sell
-                                }
+                            FilterPill(title: "Sell", systemImage: "plus") {
+                                store.selectedTab = .sell
                             }
                             FilterPill(
                                 title: "Free",

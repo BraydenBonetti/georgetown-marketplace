@@ -176,13 +176,10 @@ private struct WelcomeView: View {
                 }
                 .buttonStyle(.plain)
 
-                HStack(spacing: 10) {
-                    demoButton(role: .buyer, label: "Example buyer")
-                    demoButton(role: .seller, label: "Example seller")
-                }
-                .padding(.top, 2)
+                demoButton(label: "Example account")
+                    .padding(.top, 2)
 
-                Text("Example accounts skip sign-in so you can test the app.")
+                Text("The example account skips sign-in so you can test the app.")
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.45))
             }
@@ -196,9 +193,9 @@ private struct WelcomeView: View {
         }
     }
 
-    private func demoButton(role: AccountRole, label: String) -> some View {
+    private func demoButton(label: String) -> some View {
         Button {
-            store.signInAsDemo(role: role)
+            store.signInAsDemo()
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "sparkles")
@@ -270,21 +267,33 @@ private struct AuthFormContainer<Content: View>: View {
     }
 }
 
+/// Auth fields sit on dark gradients while the whole flow is forced into dark mode,
+/// so they pin their own light-mode colors — otherwise placeholders render white-on-white.
+private enum AuthFieldStyle {
+    static let text = Color(hex: "1C1C1E")
+    static let placeholder = Color(hex: "8A8680")
+}
+
 private struct AuthTextField: View {
     let placeholder: String
     @Binding var text: String
     var isEmail = false
 
     var body: some View {
-        TextField(placeholder, text: $text)
-            .textContentType(isEmail ? .emailAddress : .name)
-            .keyboardType(isEmail ? .emailAddress : .default)
-            .textInputAutocapitalization(isEmail ? .never : .words)
-            .autocorrectionDisabled()
-            .padding(14)
-            .background(Color.white)
-            .foregroundStyle(AppTheme.ink)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        TextField(
+            placeholder,
+            text: $text,
+            prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+        )
+        .textContentType(isEmail ? .emailAddress : .name)
+        .keyboardType(isEmail ? .emailAddress : .default)
+        .textInputAutocapitalization(isEmail ? .never : .words)
+        .autocorrectionDisabled()
+        .padding(14)
+        .background(Color.white)
+        .foregroundStyle(AuthFieldStyle.text)
+        .environment(\.colorScheme, .light)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
 
@@ -297,9 +306,17 @@ private struct AuthSecureField: View {
         HStack {
             Group {
                 if isRevealed {
-                    TextField(placeholder, text: $text)
+                    TextField(
+                        placeholder,
+                        text: $text,
+                        prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+                    )
                 } else {
-                    SecureField(placeholder, text: $text)
+                    SecureField(
+                        placeholder,
+                        text: $text,
+                        prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+                    )
                 }
             }
             .textInputAutocapitalization(.never)
@@ -309,13 +326,14 @@ private struct AuthSecureField: View {
                 isRevealed.toggle()
             } label: {
                 Image(systemName: isRevealed ? "eye.slash" : "eye")
-                    .foregroundStyle(AppTheme.hoyaGray)
+                    .foregroundStyle(AuthFieldStyle.placeholder)
             }
             .buttonStyle(.plain)
         }
         .padding(14)
         .background(Color.white)
-        .foregroundStyle(AppTheme.ink)
+        .foregroundStyle(AuthFieldStyle.text)
+        .environment(\.colorScheme, .light)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }
@@ -376,7 +394,7 @@ private struct LogInView: View {
                 .buttonStyle(.plain)
                 .padding(.top, 4)
 
-                Text("Example: \(SampleData.demoBuyer.email) · password \(SampleData.demoPassword)")
+                Text("Example: \(SampleData.demoUser.email) · password \(SampleData.demoPassword)")
                     .font(.system(size: 11))
                     .foregroundStyle(.white.opacity(0.45))
                     .multilineTextAlignment(.center)
@@ -396,21 +414,14 @@ private struct SignUpView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
-    @State private var role: AccountRole = .buyer
 
     var body: some View {
         AuthFormContainer(
             title: "Create account",
-            subtitle: "Use any personal email. Pick how you'll use the app.",
+            subtitle: "Use any personal email. Every account can buy and sell.",
             onBack: onBack
         ) {
             VStack(spacing: 12) {
-                // Buyer / seller selector
-                HStack(spacing: 10) {
-                    rolePill(.buyer, caption: "Browse & make offers")
-                    rolePill(.seller, caption: "Post & manage listings")
-                }
-
                 AuthTextField(placeholder: "Full name", text: $name)
                 AuthTextField(placeholder: "Email address", text: $email, isEmail: true)
                 AuthSecureField(placeholder: "Password (6+ characters)", text: $password)
@@ -425,8 +436,7 @@ private struct SignUpView: View {
                         name: name,
                         email: email,
                         password: password,
-                        confirmPassword: confirmPassword,
-                        role: role
+                        confirmPassword: confirmPassword
                     )
                 } label: {
                     Text("Create account")
@@ -450,26 +460,4 @@ private struct SignUpView: View {
         }
     }
 
-    private func rolePill(_ target: AccountRole, caption: String) -> some View {
-        Button {
-            role = target
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: target.systemImage)
-                    .font(.system(size: 16, weight: .semibold))
-                Text(target.rawValue)
-                    .font(.system(size: 14, weight: .bold))
-                Text(caption)
-                    .font(.system(size: 10))
-                    .opacity(0.7)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(role == target ? Color.white : Color.white.opacity(0.10))
-            .foregroundStyle(role == target ? AppTheme.hoyaNavy : .white)
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
 }

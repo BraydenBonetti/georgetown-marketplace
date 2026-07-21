@@ -43,11 +43,9 @@ struct MainTabView: View {
                 .tag(MarketplaceTab.inbox)
                 .badge(store.totalUnreadMessages)
 
-            if store.isSeller {
-                SellView()
-                    .tabItem { Label("Sell", systemImage: "plus.circle.fill") }
-                    .tag(MarketplaceTab.sell)
-            }
+            SellView()
+                .tabItem { Label("Sell", systemImage: "plus.circle.fill") }
+                .tag(MarketplaceTab.sell)
 
             SavedView()
                 .tabItem { Label("Saved", systemImage: "bookmark.fill") }

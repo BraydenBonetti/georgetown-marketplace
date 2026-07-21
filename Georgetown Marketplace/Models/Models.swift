@@ -53,26 +53,11 @@ enum CampusArea: String, CaseIterable, Identifiable, Codable {
     var id: String { rawValue }
 }
 
-enum AccountRole: String, Codable, CaseIterable, Identifiable {
-    case buyer = "Buyer"
-    case seller = "Seller"
-
-    var id: String { rawValue }
-
-    var systemImage: String {
-        switch self {
-        case .buyer: return "bag.fill"
-        case .seller: return "tag.fill"
-        }
-    }
-}
-
 struct UserProfile: Identifiable, Codable, Hashable {
     var id: String
     var name: String
     var email: String
     var password: String
-    var role: AccountRole
     var college: College
     var bio: String
     var location: CampusArea

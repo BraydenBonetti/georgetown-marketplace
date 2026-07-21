@@ -38,7 +38,6 @@ final class MarketplaceStore: ObservableObject {
     private enum StorageKey {
         static let email = "gm.currentUserEmail"
         static let name = "gm.currentUserName"
-        static let role = "gm.currentUserRole"
         static let password = "gm.currentUserPassword"
     }
 
@@ -51,7 +50,7 @@ final class MarketplaceStore: ObservableObject {
 
     // MARK: - Auth
 
-    func signUp(name: String, email: String, password: String, confirmPassword: String, role: AccountRole) {
+    func signUp(name: String, email: String, password: String, confirmPassword: String) {
         authError = nil
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -83,7 +82,6 @@ final class MarketplaceStore: ObservableObject {
             name: trimmedName,
             email: trimmedEmail,
             password: password,
-            role: role,
             college: selectedCollege,
             bio: "",
             location: .mainCampus,
@@ -121,9 +119,9 @@ final class MarketplaceStore: ObservableObject {
         completeSignIn(promptProfileSetup: !user.profileComplete)
     }
 
-    func signInAsDemo(role: AccountRole) {
+    func signInAsDemo() {
         authError = nil
-        let demo = role == .buyer ? SampleData.demoBuyer : SampleData.demoSeller
+        let demo = SampleData.demoUser
         if let idx = users.firstIndex(where: { $0.id == demo.id }) {
             currentUser = users[idx]
         } else {
@@ -146,7 +144,6 @@ final class MarketplaceStore: ObservableObject {
         guard let user = currentUser else { return }
         UserDefaults.standard.set(user.email, forKey: StorageKey.email)
         UserDefaults.standard.set(user.name, forKey: StorageKey.name)
-        UserDefaults.standard.set(user.role.rawValue, forKey: StorageKey.role)
         UserDefaults.standard.set(user.password, forKey: StorageKey.password)
         isAuthenticated = true
         selectedTab = .browse
@@ -161,15 +158,12 @@ final class MarketplaceStore: ObservableObject {
             currentUser = user
             needsProfileSetup = !user.profileComplete
         } else if let name = UserDefaults.standard.string(forKey: StorageKey.name) {
-            let role = UserDefaults.standard.string(forKey: StorageKey.role)
-                .flatMap(AccountRole.init(rawValue:)) ?? .buyer
             let password = UserDefaults.standard.string(forKey: StorageKey.password) ?? ""
             let user = UserProfile(
                 id: "u-\(UUID().uuidString.prefix(8))",
                 name: name,
                 email: email,
                 password: password,
-                role: role,
                 college: ThemeCenter.shared.college ?? CollegeCatalog.fallback,
                 bio: "",
                 location: .mainCampus,
@@ -201,13 +195,8 @@ final class MarketplaceStore: ObservableObject {
         conversations = []
         UserDefaults.standard.removeObject(forKey: StorageKey.email)
         UserDefaults.standard.removeObject(forKey: StorageKey.name)
-        UserDefaults.standard.removeObject(forKey: StorageKey.role)
         UserDefaults.standard.removeObject(forKey: StorageKey.password)
         selectedTab = .browse
-    }
-
-    var isSeller: Bool {
-        currentUser?.role == .seller
     }
 
     static func isValidEmail(_ email: String) -> Bool {
@@ -220,7 +209,6 @@ final class MarketplaceStore: ObservableObject {
         name: String,
         bio: String,
         location: CampusArea,
-        role: AccountRole,
         college: College,
         avatarColorHex: String
     ) {
@@ -233,7 +221,6 @@ final class MarketplaceStore: ObservableObject {
         users[idx].name = trimmedName
         users[idx].bio = bio.trimmingCharacters(in: .whitespacesAndNewlines)
         users[idx].location = location
-        users[idx].role = role
         users[idx].college = college
         users[idx].avatarColorHex = avatarColorHex
         users[idx].profileComplete = true
@@ -242,7 +229,14 @@ final class MarketplaceStore: ObservableObject {
         ThemeCenter.shared.select(college)
 
         UserDefaults.standard.set(users[idx].name, forKey: StorageKey.name)
-        UserDefaults.standard.set(users[idx].role.rawValue, forKey: StorageKey.role)
+    }
+
+    func updateCollege(_ college: College) {
+        guard let uid = currentUser?.id,
+              let idx = users.firstIndex(where: { $0.id == uid }) else { return }
+        users[idx].college = college
+        currentUser = users[idx]
+        ThemeCenter.shared.select(college)
     }
 
     func listings(for userId: String) -> [Listing] {

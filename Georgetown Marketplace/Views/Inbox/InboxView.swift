@@ -7,6 +7,32 @@ import SwiftUI
 
 struct InboxView: View {
     @EnvironmentObject private var store: MarketplaceStore
+    @State private var filter: ConversationFilter = .all
+
+    enum ConversationFilter: String, CaseIterable, Identifiable {
+        case all = "All"
+        case buying = "Buying"
+        case selling = "Selling"
+
+        var id: String { rawValue }
+
+        var systemImage: String {
+            switch self {
+            case .all: return "tray.full"
+            case .buying: return "bag"
+            case .selling: return "tag"
+            }
+        }
+    }
+
+    private var filteredConversations: [Conversation] {
+        guard let uid = store.currentUser?.id else { return [] }
+        switch filter {
+        case .all: return store.sortedConversations
+        case .buying: return store.sortedConversations.filter { $0.buyerId == uid }
+        case .selling: return store.sortedConversations.filter { $0.sellerId == uid }
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -41,17 +67,54 @@ struct InboxView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(AppTheme.surface)
                 } else {
-                    List(store.sortedConversations) { convo in
-                        NavigationLink {
-                            ChatThreadView(conversation: convo)
-                        } label: {
-                            ConversationRow(conversation: convo)
+                    VStack(spacing: 0) {
+                        HStack(spacing: 8) {
+                            ForEach(ConversationFilter.allCases) { option in
+                                FilterPill(
+                                    title: option.rawValue,
+                                    systemImage: option.systemImage,
+                                    isSelected: filter == option
+                                ) {
+                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                        filter = option
+                                    }
+                                }
+                            }
+                            Spacer()
                         }
-                        .listRowBackground(Color.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(AppTheme.surface)
+
+                        if filteredConversations.isEmpty {
+                            VStack(spacing: 8) {
+                                Image(systemName: filter.systemImage)
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(AppTheme.hoyaNavy.opacity(0.35))
+                                Text(filter == .buying
+                                     ? "No buying chats yet — message a seller from any listing."
+                                     : "No selling chats yet — they start when a buyer messages you.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(AppTheme.hoyaGray)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, 32)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(AppTheme.surface)
+                        } else {
+                            List(filteredConversations) { convo in
+                                NavigationLink {
+                                    ChatThreadView(conversation: convo)
+                                } label: {
+                                    ConversationRow(conversation: convo)
+                                }
+                                .listRowBackground(Color.white)
+                            }
+                            .listStyle(.plain)
+                            .scrollContentBackground(.hidden)
+                            .background(AppTheme.surface)
+                        }
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .background(AppTheme.surface)
                 }
             }
             .navigationTitle("Inbox")
@@ -77,6 +140,10 @@ struct ConversationRow: View {
     private var unread: Int {
         guard let uid = store.currentUser?.id else { return 0 }
         return conversation.unreadCount(for: uid)
+    }
+
+    private var isSelling: Bool {
+        conversation.sellerId == store.currentUser?.id
     }
 
     var body: some View {
@@ -109,10 +176,25 @@ struct ConversationRow: View {
                             .foregroundStyle(unread > 0 ? AppTheme.hoyaNavy : AppTheme.hoyaGray)
                     }
                 }
-                Text(listing.map { "\($0.askLabel) · \($0.title)" } ?? "Listing")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(AppTheme.hoyaNavy)
-                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    HStack(spacing: 3) {
+                        Image(systemName: isSelling ? "tag.fill" : "bag.fill")
+                            .font(.system(size: 8, weight: .bold))
+                        Text(isSelling ? "SELLING" : "BUYING")
+                            .font(.system(size: 9, weight: .heavy))
+                            .tracking(0.4)
+                    }
+                    .foregroundStyle(isSelling ? AppTheme.success : AppTheme.hoyaNavy)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background((isSelling ? AppTheme.success : AppTheme.hoyaNavy).opacity(0.12))
+                    .clipShape(Capsule())
+
+                    Text(listing.map { "\($0.askLabel) · \($0.title)" } ?? "Listing")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(AppTheme.hoyaNavy)
+                        .lineLimit(1)
+                }
                 HStack {
                     if let last = conversation.lastMessage {
                         Text(last.text)

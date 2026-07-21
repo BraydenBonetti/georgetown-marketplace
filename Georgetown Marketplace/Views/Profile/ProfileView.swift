@@ -39,7 +39,6 @@ struct ProfileView: View {
                             }
 
                             HStack(spacing: 8) {
-                                chip(user.role.rawValue, icon: user.role.systemImage)
                                 chip((ThemeCenter.shared.college ?? user.college).shortName, icon: "building.columns.fill")
                                 chip(user.location.rawValue, icon: "mappin")
                             }
@@ -65,9 +64,7 @@ struct ProfileView: View {
 
                         statsRow(user)
 
-                        if store.isSeller {
-                            listingsCard
-                        }
+                        listingsCard
 
                         reviewsCard(user)
 
@@ -82,19 +79,6 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-
-                        Button {
-                            store.signOut()
-                        } label: {
-                            Text("Sign out")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color(hex: "8B1E1E"))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(12)
@@ -103,6 +87,16 @@ struct ProfileView: View {
             .navigationTitle("You")
             .navigationBarTitleDisplayMode(.inline)
             .hoyaNavChrome()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
             .sheet(isPresented: $showEdit) {
                 EditProfileView()
             }
