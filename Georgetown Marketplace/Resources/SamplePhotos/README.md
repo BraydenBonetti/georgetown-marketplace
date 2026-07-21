@@ -1,8 +1,8 @@
 # Sample listing photos
 
-Drop JPEGs here with these exact names and the sample listings pick them up
-automatically (via `SampleData.bundledPhotos`). Missing files are fine — the
-listing just keeps its gradient placeholder.
+Real JPEGs for the sample Marketplace listings. `SampleData.bundledPhotos`
+loads them by filename; if a file is missing, that listing falls back to the
+gradient/symbol placeholder.
 
 | File | Listing |
 |---|---|
@@ -16,5 +16,4 @@ listing just keeps its gradient placeholder.
 | `sample-airpods.jpg` | AirPods Pro (2nd gen) |
 | `sample-tickets.jpg` | Basketball tickets (pair) |
 
-Style guide: casual iPhone-photo look (like a real marketplace listing), no
-people, no text/watermarks, roughly square, ≤ ~1500px on the long edge.
+Photos sourced from Unsplash (free license). Roughly ≤1400px on the long edge.
