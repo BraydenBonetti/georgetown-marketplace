@@ -258,7 +258,6 @@ private struct AuthFormContainer<Content: View>: View {
                     .padding(.bottom, 28)
             }
         }
-        .scrollBounceBehavior(.basedOnSize)
     }
 }
 
@@ -278,7 +277,7 @@ private struct AuthTextField: View {
         TextField(
             placeholder,
             text: $text,
-            prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+            prompt: Text(placeholder).foregroundColor(AuthFieldStyle.placeholder)
         )
         .textContentType(isEmail ? .emailAddress : .name)
         .keyboardType(isEmail ? .emailAddress : .default)
@@ -304,13 +303,13 @@ private struct AuthSecureField: View {
                     TextField(
                         placeholder,
                         text: $text,
-                        prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+                        prompt: Text(placeholder).foregroundColor(AuthFieldStyle.placeholder)
                     )
                 } else {
                     SecureField(
                         placeholder,
                         text: $text,
-                        prompt: Text(placeholder).foregroundStyle(AuthFieldStyle.placeholder)
+                        prompt: Text(placeholder).foregroundColor(AuthFieldStyle.placeholder)
                     )
                 }
             }

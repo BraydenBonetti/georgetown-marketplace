@@ -40,7 +40,15 @@ struct PublicProfileView: View {
                 }
                 .background(AppTheme.surface.ignoresSafeArea())
             } else {
-                ContentUnavailableView("Profile not found", systemImage: "person.slash")
+                VStack(spacing: 10) {
+                    Image(systemName: "person.slash")
+                        .font(.system(size: 36))
+                        .foregroundStyle(AppTheme.hoyaGray)
+                    Text("Profile not found")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(AppTheme.ink)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .navigationTitle("Profile")

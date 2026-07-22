@@ -187,7 +187,7 @@ struct SellView: View {
                 }
             }
             .buttonStyle(.plain)
-            .onChange(of: pickerItems) { _, newItems in
+            .onChange(of: pickerItems) { newItems in
                 loadPhotos(from: newItems)
             }
         } else {
@@ -213,7 +213,7 @@ struct SellView: View {
                                 )
                         }
                         .buttonStyle(.plain)
-                        .onChange(of: pickerItems) { _, newItems in
+                        .onChange(of: pickerItems) { newItems in
                             loadPhotos(from: newItems)
                         }
                     }

@@ -294,7 +294,7 @@ struct ChatThreadView: View {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
-                .onChange(of: live.messages.count) { _, _ in
+                .onChange(of: live.messages.count) { _ in
                     store.markConversationRead(live.id)
                     if let last = sortedMessages.last {
                         withAnimation {

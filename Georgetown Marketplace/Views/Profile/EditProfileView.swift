@@ -172,7 +172,7 @@ struct EditProfileView: View {
                     colorHex = user.avatarColorHex
                 }
             }
-            .onChange(of: theme.college) { _, newValue in
+            .onChange(of: theme.college) { newValue in
                 if let newValue {
                     college = newValue
                     colorHex = newValue.primaryHex
