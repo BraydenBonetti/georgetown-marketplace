@@ -206,6 +206,7 @@ struct Conversation: Identifiable, Codable, Hashable {
 enum MarketplaceTab: Hashable {
     case browse
     case inbox
+    case assistant
     case sell
     case saved
     case you

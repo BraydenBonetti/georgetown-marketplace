@@ -47,6 +47,10 @@ struct MainTabView: View {
                 .tag(MarketplaceTab.inbox)
                 .badge(store.totalUnreadMessages)
 
+            AIAssistantView()
+                .tabItem { Label("AI Assistant", systemImage: "sparkles") }
+                .tag(MarketplaceTab.assistant)
+
             SellView()
                 .tabItem { Label("Sell", systemImage: "plus.circle.fill") }
                 .tag(MarketplaceTab.sell)
